@@ -3,23 +3,24 @@ require(lpSolveAPI)
 ## Documentation for lpSolveAPI can be found at this link
 ## http://cran.r-project.org/web/packages/lpSolveAPI/lpSolveAPI.pdf
 
-## Test 1 - 4 orders, 5 plants
+## test1 - 4 orders, 5 plants
 ## create the model - constraints first arg, decision variables 2nd arg
 ## constraints are 0 as we will add them below
 test1 <- make.lp(0, 20)
+## set the objective function
 set.objfn(test1, c(99, 98, 97, 96, 
                    89, 88, 87, 86,
                    79, 78, 77, 76,
                    74, 68, 67, 66,
-                   59, 58, 57, 57
+                   59, 58, 57, 50
 ))
 
-## supply must meet demand constraints
+## add supply must meet demand constraints
 add.constraint(test1, c(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0), "=", 10)
 add.constraint(test1, c(0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0), "=", 16)
 add.constraint(test1, c(0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0), "=", 23)
 add.constraint(test1, c(0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1), "=", 31)
-## demand must not exceed supply constraints
+## add demand must not exceed supply constraints
 add.constraint(test1, c(1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", 40)
 add.constraint(test1, c(0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0), "<=", 40)
 add.constraint(test1, c(0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0), "<=", 40)
@@ -40,22 +41,24 @@ dimnames(test1) <- list(c("order1demand", "order2demand", "order3demand", "order
                           "plant5order1", "plant5order2", "plant5order3", "plant5order4")
                           )
 
-## write the lp model to a 
+## write the lp model to a file
 write.lp(test1, "test1.lp",type='lp')
 
-## solve the model a [0] indicates a solution was found
+## solve the model, a [0] indicates a solution was found
 solve(test1)
 ## get the objective
 get.objective(test1)
 ## get the decision variables
 get.variables(test1)
 
-## make a matrix of the decisions and put in readable format
-results <- get.variables(test1)
-results <- matrix(unlist(results), nrow = 5, ncol = 4, byrow = TRUE)
-rownames(results) <- c("plant1","plant2", "plant3", "plant4", "plant5")
-colnames(results) <- c("order1","order2", "order3", "order4")
+## make a matrix of the decision variables
+results1 <- get.variables(test1)
+results1 <- matrix(unlist(results1), nrow = 5, ncol = 4, byrow = TRUE)
+## name the rows and columns
+rownames(results1) <- c("plant1","plant2", "plant3", "plant4", "plant5")
+colnames(results1) <- c("order1","order2", "order3", "order4")
+## print the results to the display
+print(results1)
 
-print(results)
-
+## it is good practice to delete the model in R when done with it
 delete.lp(test1)
